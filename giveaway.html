@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Office Hours Giveaway v.7</title>
+    <style>
+        :root {
+            --accent: #667eea;
+            --accent2: #764ba2;
+            --success: #28a745;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        body.hide-cursor {
+            cursor: none;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-top: 20px;
+            margin-bottom: 80px;
+            font-size: 55px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-column {
+            flex: 0 0 400px;
+        }
+
+        .input-column.narrow {
+            flex: 0 0 300px;
+        }
+
+        .input-column.extra-narrow {
+            flex: 0 0 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        #usernamesLabel {
+            font-size: 24px ;
+        }
+
+        label:hover {
+            color: var(--accent);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #444;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+            background: #222;
+            color: #fff;
+        }
+
+        #usernames {
+            min-height: 250px;
+        }
+
+        #chat {
+            min-height: 125px;
+        }
+
+        #ignores {
+            min-height: 125px;
+        }
+
+        #skipped {
+            min-height: 125px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .keyword-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .keyword-row input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .keyword-row input[type="text"] {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid #444;
+            border-radius: 5px;
+            background: #222;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .keyword-row input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .keyword-row label {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        #enterNamesBtn {
+            width: 50%;
+            margin-top: 10px;
+            margin-left: auto;
+            display: block;
+        }
+
+        .hint {
+            font-size: 16px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, width 0.3s;
+        }
+
+        button.respin {
+            width: 200px;
+            margin: 0;
+            display: block;
+            background: transparent;
+            border: 2px solid var(--accent);
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        }
+
+        button.respin.visible {
+            opacity: 1;
+        }
+
+        button.respin:hover {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: transparent;
+            border: 2px solid #fff;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button:disabled:hover {
+            background: transparent;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .display-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .username-display {
+            font-size: 4em;
+            font-weight: bold;
+            color: var(--accent);
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 15px;
+            gap: 20px;
+            position: relative;
+            max-width: 700px;
+        }
+
+        .username-display img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--accent);
+            flex-shrink: 0;
+            position: absolute;
+            left: 20px;
+        }
+
+        .username-display span {
+            text-align: left;
+            margin-left: 140px;
+            flex: 1;
+        }
+
+        .winner-display {
+            animation: pulse 0.5s ease-in-out;
+            color: var(--success);
+        }
+
+        .winner-display img {
+            border-color: var(--success);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .winner-text {
+            font-size: 4em;
+            color: var(--success);
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="confetti-canvas"></canvas>
+
+    <div class="container">
+        <h1>🎉  Office Hours Giveaway  🎉</h1>
+
+        <label for="usernames" id="usernamesLabel">Entries:</label>
+        <div class="input-section" id="input-section">
+            <div class="input-row">
+
+                <div class="input-column">
+                    <label for="chat" id="chatLabel">Chat: (0 lines)</label>
+                    <textarea id="chat" placeholder="Paste chat messages here"></textarea>
+
+                    <div class="keyword-row">
+                        <input type="checkbox" id="keywordCheckbox">
+                        <label for="keywordCheckbox">Keyword:</label>
+                        <input type="text" id="keywordInput" placeholder="Enter keyword">
+                    </div>
+
+                    <button id="enterNamesBtn">Enter 0 names</button>
+                </div>
+                <div class="input-column extra-narrow">
+                    <label for="ignores" id="ignoresLabel">0 Ignores:</label>
+                    <textarea id="ignores" placeholder="Enter usernames to ignore"></textarea>
+                </div>
+                <div class="input-column extra-narrow">
+                    <label for="skipped" id="skippedLabel">0 Skipped:</label>
+                    <textarea id="skipped" placeholder="Skipped usernames" readonly></textarea>
+                </div>
+                <div class="input-column narrow">
+                    <label for="usernames" id="namesLabel">0 Names:</label>
+                    <textarea id="usernames" placeholder="Enter one username per line"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <button id="startBtn">Start Giveaway</button>
+
+        <div class="display-section">
+            <div id="usernameDisplay" class="username-display"></div>
+            <div id="winnerText" class="winner-text hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        let usernames = [];
+        let isRunning = false;
+
+        // Lazily created/resumed so the browser's autoplay policy doesn't
+        // silently block sound (contexts must start from a user gesture).
+        let audioContext = null;
+        function getAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            return audioContext;
+        }
+
+        const drumrollAudio = new Audio('drumroll.mp3');
+        const cheersAudio = new Audio('cheers.mp3');
+        drumrollAudio.loop = true;
+
+        // Cached DOM references
+        const usernamesEl = document.getElementById('usernames');
+        const usernamesLabelEl = document.getElementById('usernamesLabel');
+        const chatEl = document.getElementById('chat');
+        const chatLabelEl = document.getElementById('chatLabel');
+        const ignoresEl = document.getElementById('ignores');
+        const ignoresLabelEl = document.getElementById('ignoresLabel');
+        const skippedEl = document.getElementById('skipped');
+        const skippedLabelEl = document.getElementById('skippedLabel');
+        const namesLabelEl = document.getElementById('namesLabel');
+        const keywordCheckboxEl = document.getElementById('keywordCheckbox');
+        const keywordInputEl = document.getElementById('keywordInput');
+        const enterNamesBtnEl = document.getElementById('enterNamesBtn');
+        const startBtnEl = document.getElementById('startBtn');
+        const inputSectionEl = document.getElementById('input-section');
+        const usernameDisplayEl = document.getElementById('usernameDisplay');
+        const winnerTextEl = document.getElementById('winnerText');
+        const confettiCanvasEl = document.getElementById('confetti-canvas');
+
+        function playBlip(isWinner = false) {
+            const ctx = getAudioContext();
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+
+            if (isWinner) {
+                // Higher, bell-like tone for winner
+                oscillator.frequency.value = 1200;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.4, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + 0.3);
+            } else {
+                // Regular blip
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + 0.1);
+            }
+        }
+
+        function toggleTextarea() {
+            const hint = document.querySelector('.hint');
+            if (inputSectionEl.style.display === 'none') {
+                inputSectionEl.style.display = 'block';
+                if (hint) hint.style.display = 'block';
+            } else {
+                inputSectionEl.style.display = 'none';
+                if (hint) hint.style.display = 'none';
+            }
+        }
+
+        function updateLabel() {
+            const input = usernamesEl.value.trim();
+
+            if (input) {
+                const names = input.split('\n').filter(name => name.trim() !== '');
+                if (names.length > 0) {
+                    usernamesLabelEl.textContent = `${names.length} Names Entered`;
+                    startBtnEl.disabled = false;
+                } else {
+                    usernamesLabelEl.textContent = 'Enter list of names:';
+                    startBtnEl.disabled = true;
+                }
+            } else {
+                usernamesLabelEl.textContent = 'Enter list of names:';
+                startBtnEl.disabled = true;
+            }
+        }
+
+        function getAvatarUrl(username) {
+            const cleanUsername = username.replace('@', '').trim();
+            return `https://unavatar.io/youtube/${cleanUsername}`;
+        }
+
+        function displayUsername(username) {
+            const avatarUrl = getAvatarUrl(username);
+
+            usernameDisplayEl.innerHTML = '';
+
+            const img = document.createElement('img');
+            img.src = avatarUrl;
+            img.alt = username;
+            img.addEventListener('error', function() {
+                this.style.display = 'none';
+            });
+
+            const span = document.createElement('span');
+            span.textContent = username;
+
+            usernameDisplayEl.appendChild(img);
+            usernameDisplayEl.appendChild(span);
+        }
+
+        // Update Chat label with line count
+        function updateChatLabel() {
+            const lines = chatEl.value.split('\n').filter(line => line.trim() !== '');
+            chatLabelEl.textContent = `Chat: (${lines.length} lines)`;
+        }
+
+        // Update Ignores label with count
+        function updateIgnoresLabel() {
+            const names = ignoresEl.value.split('\n').filter(name => name.trim() !== '');
+            ignoresLabelEl.textContent = `${names.length} Ignores:`;
+        }
+
+        // Update Names label with count
+        function updateNamesLabel() {
+            const names = usernamesEl.value.split('\n').filter(name => name.trim() !== '');
+            namesLabelEl.textContent = `${names.length} Names:`;
+        }
+
+        usernamesEl.addEventListener('input', updateLabel);
+        chatEl.addEventListener('input', updateChatLabel);
+        ignoresEl.addEventListener('input', updateIgnoresLabel);
+        usernamesEl.addEventListener('input', updateNamesLabel);
+
+        // Focus the textarea on page load and set initial states
+        window.addEventListener('load', () => {
+            usernamesEl.focus();
+            startBtnEl.disabled = true;
+            enterNamesBtnEl.disabled = true;
+        });
+
+        // Parse chat once, returning both the full @mention list and the
+        // subset that passes the keyword filter (shared by the button-count
+        // preview and the actual "Enter names" action).
+        function parseChatMessages() {
+            const lines = chatEl.value.split('\n');
+            const keywordEnabled = keywordCheckboxEl.checked;
+            const keyword = keywordInputEl.value.trim().toLowerCase();
+
+            const all = new Set();
+            const accepted = new Set();
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line.startsWith('@')) continue;
+
+                const username = line.split(/\s/)[0];
+                all.add(username);
+
+                if (keywordEnabled && keyword) {
+                    const nextLine = (lines[i + 1] || '').toLowerCase();
+                    if (nextLine.includes(keyword)) {
+                        accepted.add(username);
+                    }
+                } else {
+                    accepted.add(username);
+                }
+            }
+
+            return { all: Array.from(all), accepted: Array.from(accepted) };
+        }
+
+        // Update Enter button count and disabled state
+        function updateEnterNamesButton() {
+            const chat = chatEl.value.trim();
+            const { accepted } = parseChatMessages();
+            enterNamesBtnEl.textContent = `Enter ${accepted.length} names`;
+            enterNamesBtnEl.disabled = chat === '';
+        }
+
+        // Enter names from chat into names field
+        function enterNamesFromChat() {
+            const { all, accepted } = parseChatMessages();
+
+            const ignoreList = ignoresEl.value
+                .split('\n')
+                .map(name => name.trim())
+                .filter(name => name !== '');
+            const ignoreLowerCase = ignoreList.map(name => name.toLowerCase());
+
+            // Filter out ignored usernames from accepted list
+            let acceptedUsernames = accepted.filter(username => !ignoreLowerCase.includes(username.toLowerCase()));
+
+            // Skipped = all mentions minus accepted (covers both ignored
+            // usernames and those that didn't pass the keyword filter)
+            const acceptedLowerCase = acceptedUsernames.map(name => name.toLowerCase());
+            const skippedUsernames = all.filter(username => !acceptedLowerCase.includes(username.toLowerCase()));
+
+            acceptedUsernames.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+            skippedUsernames.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+
+            usernamesEl.value = acceptedUsernames.join('\n');
+            skippedEl.value = skippedUsernames.join('\n');
+            skippedLabelEl.textContent = `${skippedUsernames.length} Skipped:`;
+
+            updateLabel();
+            updateNamesLabel();
+        }
+
+        // Check and remove ignored names from Names field
+        function filterNamesAgainstIgnoreList() {
+            const currentNames = usernamesEl.value
+                .split('\n')
+                .map(name => name.trim())
+                .filter(name => name !== '');
+
+            if (currentNames.length === 0) return;
+
+            const ignoreList = ignoresEl.value
+                .split('\n')
+                .map(name => name.trim())
+                .filter(name => name !== '');
+
+            if (ignoreList.length === 0) return;
+
+            const ignoreLowerCase = ignoreList.map(name => name.toLowerCase());
+            const filteredUsernames = currentNames.filter(username => !ignoreLowerCase.includes(username.toLowerCase()));
+
+            if (filteredUsernames.length !== currentNames.length) {
+                usernamesEl.value = filteredUsernames.join('\n');
+                updateLabel();
+                updateNamesLabel();
+            }
+        }
+
+        chatEl.addEventListener('input', updateEnterNamesButton);
+        keywordCheckboxEl.addEventListener('change', updateEnterNamesButton);
+        keywordInputEl.addEventListener('input', updateEnterNamesButton);
+
+        ignoresEl.addEventListener('blur', filterNamesAgainstIgnoreList);
+
+        // Select all text when clicking into the textarea
+        usernamesEl.addEventListener('click', function() {
+            this.select();
+        });
+
+        usernamesLabelEl.addEventListener('click', toggleTextarea);
+        enterNamesBtnEl.addEventListener('click', enterNamesFromChat);
+        startBtnEl.addEventListener('click', startGiveaway);
+
+        // Hover listeners for drumroll sound - covers both the initial
+        // "Start Giveaway" state and the later "Respin" state since both
+        // just check whether the button is currently disabled.
+        startBtnEl.addEventListener('mouseenter', function() {
+            if (!this.disabled) {
+                drumrollAudio.currentTime = 0;
+                drumrollAudio.play();
+            }
+        });
+
+        startBtnEl.addEventListener('mouseleave', function() {
+            if (!this.disabled) {
+                drumrollAudio.pause();
+                drumrollAudio.currentTime = 0;
+            }
+        });
+
+        // Case-insensitive de-dupe, preserving first-seen casing, so a name
+        // pasted/typed twice doesn't get two draws in the pool
+        function dedupeNames(names) {
+            const seen = new Set();
+            const result = [];
+            for (const name of names) {
+                const key = name.toLowerCase();
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    result.push(name);
+                }
+            }
+            return result;
+        }
+
+        const SPIN_TOTAL_CYCLES = 30;
+        const SPIN_INITIAL_INTERVAL = 100;
+        const SPIN_SLOWDOWN_START_CYCLE = 20;
+        const SPIN_SLOWDOWN_STEP = 30;
+        const RESPIN_BUTTON_DELAY = 10000;
+        const WINNER_SOUND_DELAY = 500;
+
+        function startGiveaway() {
+            const input = usernamesEl.value.trim();
+
+            if (!input) {
+                alert('Please enter at least one username!');
+                return;
+            }
+
+            usernames = dedupeNames(input.split('\n').filter(name => name.trim() !== ''));
+
+            if (usernames.length < 2) {
+                alert('Please enter at least 2 usernames!');
+                return;
+            }
+
+            if (isRunning) return;
+            isRunning = true;
+
+            // Stop drumroll when button is clicked
+            drumrollAudio.pause();
+            drumrollAudio.currentTime = 0;
+
+            // Hide cursor
+            document.body.classList.add('hide-cursor');
+
+            // Hide the entire input section
+            inputSectionEl.style.display = 'none';
+
+            // Immediately transform button to respin style but keep it hidden
+            startBtnEl.textContent = 'Respin';
+            startBtnEl.classList.add('respin');
+            startBtnEl.style.visibility = 'hidden';
+
+            winnerTextEl.classList.add('hidden');
+            usernameDisplayEl.classList.remove('winner-display');
+
+            let cycleCount = 0;
+            let interval = SPIN_INITIAL_INTERVAL;
+
+            const animate = () => {
+                if (cycleCount < SPIN_TOTAL_CYCLES) {
+                    const randomIndex = Math.floor(Math.random() * usernames.length);
+                    displayUsername(usernames[randomIndex]);
+                    playBlip();
+                    cycleCount++;
+
+                    // Slow down progressively
+                    if (cycleCount > SPIN_SLOWDOWN_START_CYCLE) {
+                        interval += SPIN_SLOWDOWN_STEP;
+                    }
+
+                    setTimeout(animate, interval);
+                } else {
+                    // Final winner selection
+                    const winnerIndex = Math.floor(Math.random() * usernames.length);
+                    const winner = usernames[winnerIndex];
+
+                    displayUsername(winner);
+                    playBlip(true);
+                    usernameDisplayEl.classList.add('winner-display');
+                    winnerTextEl.textContent = '🏆 WINNER! 🏆';
+                    winnerTextEl.classList.remove('hidden');
+
+                    // Play cheers sound after a short delay to let the winner blip be heard
+                    setTimeout(() => {
+                        cheersAudio.currentTime = 0;
+                        cheersAudio.play();
+                    }, WINNER_SOUND_DELAY);
+
+                    launchConfetti();
+
+                    // Show "Respin" button after a delay
+                    setTimeout(() => {
+                        // Show cursor again
+                        document.body.classList.remove('hide-cursor');
+
+                        // Make button visible and trigger fade in
+                        startBtnEl.style.visibility = 'visible';
+                        // Use setTimeout to ensure transition happens after visibility change
+                        setTimeout(() => {
+                            startBtnEl.classList.add('visible');
+                        }, 10);
+
+                        isRunning = false;
+                        startBtnEl.disabled = false;
+                    }, RESPIN_BUTTON_DELAY);
+                }
+            };
+
+            animate();
+        }
+
+        // Tracks the in-flight rAF loop so a respin cancels the previous
+        // run instead of stacking a second loop on top of it.
+        let confettiAnimationId = null;
+
+        function launchConfetti() {
+            const ctx = confettiCanvasEl.getContext('2d');
+
+            if (confettiAnimationId !== null) {
+                cancelAnimationFrame(confettiAnimationId);
+                confettiAnimationId = null;
+            }
+
+            ctx.clearRect(0, 0, confettiCanvasEl.width, confettiCanvasEl.height);
+            confettiCanvasEl.width = window.innerWidth;
+            confettiCanvasEl.height = window.innerHeight;
+
+            const confetti = [];
+            const confettiCount = 250;
+            const slowConfettiCount = Math.floor(Math.random() * 3) + 3; // 3-5 slow particles
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#ff1493'];
+
+            class Confetto {
+                constructor(isSlow = false) {
+                    this.x = Math.random() * confettiCanvasEl.width;
+                    this.y = -Math.random() * confettiCanvasEl.height * 0.3;
+                    this.size = Math.random() * 8 + 5;
+                    // 25% speed for slow confetti
+                    const baseSpeedY = Math.random() * 6 + 9;
+                    this.speedY = isSlow ? baseSpeedY * 0.25 : baseSpeedY;
+                    const baseSpeedX = Math.random() * 2 - 1;
+                    this.speedX = isSlow ? baseSpeedX * 2 : baseSpeedX;
+                    this.color = colors[Math.floor(Math.random() * colors.length)];
+                    this.rotation = Math.random() * 360;
+                    this.rotationSpeed = Math.random() * 10 - 5;
+                    // Random stopping point in bottom 25% of screen
+                    this.stopY = confettiCanvasEl.height * (0.75 + Math.random() * 0.05);
+                    this.stopped = false;
+                }
+
+                update() {
+                    if (!this.stopped) {
+                        this.y += this.speedY;
+                        this.x += this.speedX;
+                        this.rotation += this.rotationSpeed;
+
+                        if (this.y >= this.stopY) {
+                            this.y = this.stopY;
+                            this.stopped = true;
+                        }
+                    }
+                }
+
+                draw() {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.rotation * Math.PI / 180);
+                    ctx.fillStyle = this.color;
+                    ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+                    ctx.restore();
+                }
+            }
+
+            // Create regular speed confetti
+            for (let i = 0; i < confettiCount; i++) {
+                confetti.push(new Confetto(false));
+            }
+
+            // Create slow speed confetti
+            for (let i = 0; i < slowConfettiCount; i++) {
+                confetti.push(new Confetto(true));
+            }
+
+            function animateConfetti() {
+                ctx.clearRect(0, 0, confettiCanvasEl.width, confettiCanvasEl.height);
+
+                let allStopped = true;
+                confetti.forEach((confetto) => {
+                    confetto.update();
+                    confetto.draw();
+                    if (!confetto.stopped) {
+                        allStopped = false;
+                    }
+                });
+
+                // Keep animating until all confetti has stopped, then freeze them on screen
+                if (!allStopped) {
+                    confettiAnimationId = requestAnimationFrame(animateConfetti);
+                } else {
+                    // All confetti stopped - draw one final frame and leave them frozen
+                    confettiAnimationId = null;
+                    ctx.clearRect(0, 0, confettiCanvasEl.width, confettiCanvasEl.height);
+                    confetti.forEach((confetto) => {
+                        confetto.draw();
+                    });
+                }
+            }
+
+            animateConfetti();
+        }
+
+        window.addEventListener('resize', () => {
+            confettiCanvasEl.width = window.innerWidth;
+            confettiCanvasEl.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
