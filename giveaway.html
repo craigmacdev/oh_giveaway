@@ -440,6 +440,43 @@
             return `https://unavatar.io/youtube/${cleanUsername}`;
         }
 
+        // Fallback avatar (a colored circle with the first letter) for when
+        // unavatar.io has nothing for a username, so the display never shows
+        // a broken image mid-spin.
+        function getInitialsAvatar(username) {
+            const clean = username.replace('@', '').trim();
+            const initial = (clean.charAt(0) || '?').toUpperCase();
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 100;
+            canvas.height = 100;
+            const ctx = canvas.getContext('2d');
+
+            const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#667eea';
+            ctx.fillStyle = accent;
+            ctx.beginPath();
+            ctx.arc(50, 50, 50, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 48px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(initial, 50, 54);
+
+            return canvas.toDataURL();
+        }
+
+        // Preload avatars for the whole pool before a spin starts so the
+        // browser has them cached and doesn't flicker/show broken images
+        // while cycling through random names.
+        function preloadAvatars(names) {
+            names.forEach(name => {
+                const img = new Image();
+                img.src = getAvatarUrl(name);
+            });
+        }
+
         function displayUsername(username) {
             const avatarUrl = getAvatarUrl(username);
 
@@ -449,8 +486,8 @@
             img.src = avatarUrl;
             img.alt = username;
             img.addEventListener('error', function() {
-                this.style.display = 'none';
-            });
+                this.src = getInitialsAvatar(username);
+            }, { once: true });
 
             const span = document.createElement('span');
             span.textContent = username;
@@ -482,11 +519,55 @@
         ignoresEl.addEventListener('input', updateIgnoresLabel);
         usernamesEl.addEventListener('input', updateNamesLabel);
 
-        // Focus the textarea on page load and set initial states
+        // Persist entries/chat/ignores across reloads so an accidental
+        // refresh mid-show doesn't wipe everything out.
+        const STORAGE_KEY = 'ohGiveawayState';
+
+        function saveState() {
+            const state = {
+                chat: chatEl.value,
+                ignores: ignoresEl.value,
+                usernames: usernamesEl.value,
+                keywordEnabled: keywordCheckboxEl.checked,
+                keyword: keywordInputEl.value,
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        function restoreState() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return;
+
+            let state;
+            try {
+                state = JSON.parse(raw);
+            } catch {
+                return;
+            }
+
+            chatEl.value = state.chat || '';
+            ignoresEl.value = state.ignores || '';
+            usernamesEl.value = state.usernames || '';
+            keywordCheckboxEl.checked = !!state.keywordEnabled;
+            keywordInputEl.value = state.keyword || '';
+        }
+
+        usernamesEl.addEventListener('input', saveState);
+        chatEl.addEventListener('input', saveState);
+        ignoresEl.addEventListener('input', saveState);
+        keywordCheckboxEl.addEventListener('change', saveState);
+        keywordInputEl.addEventListener('input', saveState);
+
+        // Restore saved entries, focus the textarea, and sync all labels
+        // and button states to whatever was restored (or the empty default)
         window.addEventListener('load', () => {
+            restoreState();
+            updateLabel();
+            updateChatLabel();
+            updateIgnoresLabel();
+            updateNamesLabel();
+            updateEnterNamesButton();
             usernamesEl.focus();
-            startBtnEl.disabled = true;
-            enterNamesBtnEl.disabled = true;
         });
 
         // Parse chat once, returning both the full @mention list and the
@@ -555,6 +636,7 @@
 
             updateLabel();
             updateNamesLabel();
+            saveState();
         }
 
         // Check and remove ignored names from Names field
@@ -580,6 +662,7 @@
                 usernamesEl.value = filteredUsernames.join('\n');
                 updateLabel();
                 updateNamesLabel();
+                saveState();
             }
         }
 
@@ -654,6 +737,8 @@
 
             if (isRunning) return;
             isRunning = true;
+
+            preloadAvatars(usernames);
 
             // Stop drumroll when button is clicked
             drumrollAudio.pause();
